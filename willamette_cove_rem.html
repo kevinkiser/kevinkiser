@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Willamette Cove Remediation</title>
+    <style>
+        /* reset and global style */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        /* back ground */
+        .background-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .background-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
+            transition: opacity 1.5s ease-in-out;
+        }
+
+        #bg-day {
+            background-image: url("assets/port_day.svg");
+            opacity: 1;
+        }
+
+        #bg-night {
+            background-image: url("assets/port_night.svg");
+            opacity: 0;
+        }
+
+        /* main layou*/
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            padding: 1.5rem;
+            gap: 1.5rem;
+        }
+
+        .content-box {
+            background-color: rgba(255, 255, 255, 0.2); 
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        #project-description-container {
+             padding: 1.5rem;
+             font-size: 0.9rem;
+             max-width: 90ch;
+             margin: 0 auto; 
+             display: none; 
+        }
+
+        .shiny-app-container {
+            flex-grow: 1; 
+            display: flex;
+            flex-direction: column;
+            padding: 0; 
+            overflow: hidden; 
+        }
+
+        .shiny-app-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* butons  */
+        .controls-section {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            flex-shrink: 0;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: #3498db;
+            color: #ffffff;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .btn:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        #about-toggle {
+            background-color: #6c757d;
+        }
+        
+    </style>
+</head>
+<body>
+
+    <div class="background-container">
+        <div id="bg-day" class="background-image"></div>
+        <div id="bg-night" class="background-image"></div>
+    </div>
+
+    <div class="main-container">
+
+        <div class="content-box shiny-app-container">
+            <iframe class="shiny-app-iframe" src="https://akewpm-kevin-kiser.shinyapps.io/WillametteCoveRemediationApp/"></iframe>
+        </div>
+
+        <div id="project-description-container" class="content-box">
+            <p>
+                This project presents a data visualization of contaminants at the Portland Willamette Cove Superfund site, using R to highlight contamination levels relative to human and ecological health thresholds. The goal is to provide decision-makers with a clear, interactive tool to identify high-priority remediation areas while minimizing cleanup costs. The visualization, built within a Shiny App, allows users to explore contamination distribution across the site at varying depths and thresholds. The challenge lies in balancing the need for effective remediation with the potential costs of over-cleaning, making this a complex decision for stakeholders. By effectively targeting the most contaminated areas, the project aims to support the transformation of Willamette Cove into a safe, accessible community nature park.
+            </p>
+        </div>
+
+        <div class="controls-section">
+            <a href="index.html" class="btn">Back to Portfolio</a>
+            <button id="about-toggle" class="btn">About</button>
+        </div>
+    </div>
+
+    <script>
+        // About
+        const aboutToggleBtn = document.getElementById('about-toggle');
+        const descriptionContainer = document.getElementById('project-description-container');
+        let isDescriptionVisible = false;
+
+        aboutToggleBtn.addEventListener('click', () => {
+            isDescriptionVisible = !isDescriptionVisible;
+            if (isDescriptionVisible) {
+                descriptionContainer.style.display = 'block';
+                aboutToggleBtn.textContent = 'Hide';
+            } else {
+                descriptionContainer.style.display = 'none';
+                aboutToggleBtn.textContent = 'About';
+            }
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kevin Kiser - Data Scientist</title>
+    <style>
+        /* Basic Reset and Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Theme Variables */
+        :root {
+            /* Night Mode (Default) */
+            --text-primary: #ffffff; /* Changed to white */
+            --text-header: #ffffff; /* Changed to white */
+            --content-bg: rgba(17, 24, 39, 0.1); /* Changed transparency to 0.1 */
+            --border-color: rgba(255, 255, 255, 0.1); /* Changed transparency to 0.1 */
+            --btn-bg: #3498db;
+            --btn-hover-bg: #2980b9;
+            --btn-text: #ffffff;
+            --theme-toggle-bg: #4a5568;
+            --theme-toggle-hover-bg: #2d3748;
+            --modal-bg: rgba(0, 0, 0, 0.8); /* Dark overlay for modal */
+            --modal-content-bg: #ffffff; /* White background for modal content */
+            --modal-text: #333; /* Dark text for modal content */
+        }
+
+        body.light-mode {
+            /* Day Mode */
+            --text-primary: #333; /* Original dark text for day mode */
+            --text-header: #2c3e50; /* Original dark header color for day mode */
+            --content-bg: rgba(255, 255, 255, 0.2);
+            --border-color: rgba(255, 255, 255, 0.2);
+            --btn-bg: #3498db;
+            --btn-hover-bg: #2980b9;
+            --btn-text: #ffffff;
+            --theme-toggle-bg: #4a5568;
+            --theme-toggle-hover-bg: #2d3748;
+            --modal-bg: rgba(0, 0, 0, 0.6); /* Slightly lighter overlay for day mode */
+            --modal-content-bg: #ffffff;
+            --modal-text: #333;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary); /* Use variable for main text color */
+            transition: color 0.3s ease; /* Smooth transition for text color */
+        }
+
+        /* --- Background Setup --- */
+        .background-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1; /* Place backgrounds behind all content */
+        }
+
+        .background-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
+            /* This is the key for the smooth dissolve effect */
+            transition: opacity 1.5s ease-in-out;
+        }
+
+        /* Day and Night Backgrounds */
+        #bg-day {
+            background-image: url("assets/port_day.svg");
+            opacity: 1; /* Visible by default */
+        }
+
+        #bg-night {
+            background-image: url("assets/port_night.svg");
+            opacity: 0; /* Hidden by default */
+        }
+
+
+        /* --- Main Layout --- */
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; /* Pushes top and bottom sections apart */
+            min-height: 100%;
+            padding: 2rem 1rem; 
+        }
+
+        /* Container for the top two boxes */
+        .top-section {
+            display: flex;
+            gap: 1rem;
+        }
+
+        /* Container for the bottom buttons */
+        .bottom-section {
+            display: flex;
+            justify-content: center;
+            align-items: center; /* Aligns items vertically */
+            gap: 1rem;
+            flex-wrap: wrap; /* Allows buttons to wrap on smaller screens */
+        }
+
+        /* --- Content Containers (The semi-transparent boxes) --- */
+        .content-box {
+            background-color: var(--content-bg); /* Use variable for background */
+            border-radius: 12px; /* Softer corners */
+            padding: 1rem; /* Reduced padding */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(5px); /* Frosted glass effect */
+            -webkit-backdrop-filter: blur(5px);
+            border: 1px solid var(--border-color); /* Use variable for border */
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        
+        .info-container {
+            flex-basis: 30%;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .bio-container {
+            flex-basis: 70%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .projects-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        /* --- Content Styling --- */
+        .profile-pic {
+            width: 100px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #fff;
+            flex-shrink: 0;
+        }
+
+        .info-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            color: var(--text-header); /* Use variable for header color */
+            margin-bottom: 0.1rem;
+            transition: color 0.3s ease;
+        }
+
+        h2 {
+            font-size: 1.1rem;
+            font-weight: 400;
+            color: var(--text-header); /* Use variable for header color */
+            margin-bottom: 0.25rem;
+            transition: color 0.3s ease;
+        }
+        
+        h3 {
+            font-size: 1rem;
+            font-weight: 300;
+            color: var(--text-header); /* Use variable for header color */
+            margin-bottom: 0.5rem;
+            transition: color 0.3s ease;
+        }
+
+        .contact-info a {
+            color: #3498db;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .contact-info a:hover {
+            text-decoration: underline;
+        }
+
+        .bio-container p {
+            font-size: 0.9rem;
+        }
+
+        /* --- Buttons --- */
+        .btn {
+            display: inline-block;
+            background-color: var(--btn-bg); /* Use variable for button background */
+            color: var(--btn-text); /* Use variable for button text color */
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .btn:hover {
+            background-color: var(--btn-hover-bg); /* Use variable for button hover background */
+            transform: translateY(-2px);
+        }
+        
+        #theme-toggle {
+            background-color: var(--theme-toggle-bg);
+            padding: 8px 16px;
+            font-size: 0.8rem;
+        }
+        #theme-toggle:hover {
+            background-color: var(--theme-toggle-hover-bg);
+        }
+
+        /* --- Project Button Specifics --- */
+        .project-btn {
+            display: flex;
+            flex-direction: column; /* Stack image and text */
+            align-items: center; /* Center content horizontally */
+            text-align: center;
+            max-width: 150px;
+            padding: 0.75rem; /* Adjust padding for the new layout */
+            height: 150px; /* Give a consistent height */
+            justify-content: flex-start; /* Align content to the top */
+        }
+
+        .project-btn-img {
+            width: 100%;
+            height: 80px; /* Fixed height for the image area */
+            object-fit: cover; /* Ensure image covers the area nicely */
+            border-radius: 4px; /* Slightly rounded corners for the image */
+            margin-bottom: 0.5rem; /* Space between image and text */
+        }
+
+        .project-btn-text {
+            font-size: 0.8rem;
+            line-height: 1.3; /* Adjust line height for the text */
+        }
+
+        /* --- Modal Styles --- */
+        .modal-overlay {
+            display: none; /* Hidden by default */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--modal-bg);
+            backdrop-filter: blur(3px);
+            -webkit-backdrop-filter: blur(3px);
+            z-index: 1000; /* High z-index to cover everything */
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background-color: var(--modal-content-bg);
+            color: var(--modal-text);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            max-width: 95vw; /* Increased to take up more width relative to viewport */
+            max-height: 95vh; /* Increased to take up more height relative to viewport */
+            width: 95vw; /* Ensure it tries to take this width */
+            height: 95vh; /* Ensure it tries to take this height */
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            transform: translateY(20px);
+            opacity: 0;
+            transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+        }
+
+        .modal-overlay.show .modal-content {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            color: var(--modal-text);
+        }
+
+        .modal-close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--modal-text);
+            padding: 5px;
+            border-radius: 50%;
+            transition: background-color 0.2s ease;
+        }
+
+        .modal-close-btn:hover {
+            background-color: #f0f0f0;
+        }
+
+        .modal-body {
+            flex-grow: 1;
+            overflow-y: auto; /* Enable scrolling for content */
+            display: flex;
+            flex-direction: column;
+        }
+
+        .resume-iframe {
+            width: 100%;
+            flex-grow: 1; /* Make iframe take available space */
+            border: none;
+            min-height: 300px; /* Minimum height for iframe */
+        }
+
+        .modal-footer {
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+            text-align: center;
+        }
+
+        .modal-download-btn {
+            background-color: #28a745; /* Green download button */
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background-color 0.3s ease;
+        }
+
+        .modal-download-btn:hover {
+            background-color: #218838;
+        }
+
+
+        /* --- Responsive Design --- */
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 1rem 0.5rem;
+                justify-content: flex-start;
+                gap: 1rem;
+            }
+            .top-section {
+                flex-direction: column;
+            }
+            .info-container, .bio-container {
+                flex-basis: auto;
+            }
+            .info-container {
+                flex-direction: row;
+            }
+            .modal-content {
+                max-width: 95vw; /* Ensure it's still large on smaller screens */
+                max-height: 95vh; /* Ensure it's still large on smaller screens */
+                width: 95vw;
+                height: 95vh;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="background-container">
+        <div id="bg-day" class="background-image"></div>
+        <div id="bg-night" class="background-image"></div>
+    </div>
+
+    <div class="main-container">
+        <div class="top-section">
+            <div class="content-box info-container">
+                <img src="assets/prof_pic.jpeg" alt="Kevin Kiser Profile Picture" class="profile-pic" onerror="this.onerror=null;this.src='https://placehold.co/100x120/EFEFEF/AAAAAA&text=Profile';">
+                <div class="info-text">
+                    <h1>Kevin Kiser</h1>
+                    <h2>Data Scientist</h2>
+                    <h3>Willamette University</h3>
+                    <div class="contact-info">
+                        <a href="mailto:k13kiser@gmail.com">k13kiser@gmail.com</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-box bio-container">
+                <p>
+                    A dedicated and analytical data scientist with a strong foundation in statistical analysis, machine learning, and data visualization. Passionate about uncovering insights from complex datasets to drive strategic decision-making. Skilled in programming languages such as Python and R, and experienced with a variety of data science libraries and tools. Eager to apply academic knowledge and practical skills to solve real-world problems.
+                </p>
+            </div>
+        </div>
+
+        <div class="bottom-section">
+            <button id="theme-toggle" class="btn">Night Mode</button>
+            <a href="#" id="view-resume-btn" class="btn">View Resume</a> <!-- New Resume Button -->
+
+            <div class="content-box projects-container">
+                <!-- Project 1 with Thumbnail -->
+                <a href="willamette_cove_rem.html" class="btn project-btn" target="_blank" rel="noopener noreferrer">
+                    <img src="assets/WC_small.jpg" alt="Willamette Cove Project Thumbnail" class="project-btn-img" onerror="this.onerror=null;this.src='https://placehold.co/150x80/EFEFEF/AAAAAA&text=Image+not+found';">
+                    <span class="project-btn-text">Willamette Cove Remediation</span>
+                </a>
+                <!-- Project 2 with Thumbnail -->
+                <a href="https://akewpm-kevin-kiser.shinyapps.io/HurricaneApp/" class="btn project-btn" target="_blank" rel="noopener noreferrer">
+                    <img src="assets/HurricaneSurvivalAnalysis.png" alt="Hurricane Survival Analysis Thumbnail" class="project-btn-img" onerror="this.onerror=null;this.src='https://placehold.co/150x80/EFEFEF/AAAAAA&text=Image+not+found';">
+                    <span class="project-btn-text">Survival Analysis Hurricanes</span>
+                </a>
+                <!-- Project 3 with Thumbnail (Video Poker) -->
+                <a href="poker_eval.html" class="btn project-btn" target="_blank" rel="noopener noreferrer">
+                    <img src="assets/poker_eval.png" alt="Video Poker Expected Value Thumbnail" class="project-btn-img" onerror="this.onerror=null;this.src='https://placehold.co/150x80/EFEFEF/AAAAAA&text=Image+not+found';">
+                    <span class="project-btn-text">Video Poker Expected Value</span>
+                </a>
+                <!-- New Project: Preventable Hospitalization Modelling -->
+                <a href="#" class="btn project-btn">
+                    <img src="assets/CA_scatter.svg" alt="Preventable Hospitalization Modelling Thumbnail" class="project-btn-img" onerror="this.onerror=null;this.src='https://placehold.co/150x80/EFEFEF/AAAAAA&text=Image+not+found';">
+                    <span class="project-btn-text">Preventable Hospitalization Modelling</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resume Modal Structure -->
+    <div id="resume-modal-overlay" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Kevin Kiser - Resume</h2>
+                <button class="modal-close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <iframe id="resume-iframe" class="resume-iframe" src="" title="Kevin Kiser Resume"></iframe>
+            </div>
+            <div class="modal-footer">
+                <a id="download-resume-btn" href="assets/Kevin_Kiser_Resume71325.pdf" download="Kevin_Kiser_Resume.pdf" class="modal-download-btn">Download Resume</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const bgDay = document.getElementById('bg-day');
+        const bgNight = document.getElementById('bg-night');
+        let isNight = true; // Start in night mode
+
+        // Modal elements
+        const viewResumeBtn = document.getElementById('view-resume-btn');
+        const resumeModalOverlay = document.getElementById('resume-modal-overlay');
+        const modalCloseBtn = document.querySelector('.modal-close-btn');
+        const resumeIframe = document.getElementById('resume-iframe');
+        const downloadResumeBtn = document.getElementById('download-resume-btn');
+
+        // Set initial theme based on isNight
+        if (isNight) {
+            document.body.classList.remove('light-mode');
+            bgDay.style.opacity = '0';
+            bgNight.style.opacity = '1';
+            themeToggleBtn.textContent = 'Day Mode';
+        } else {
+            document.body.classList.add('light-mode');
+            bgDay.style.opacity = '1';
+            bgNight.style.opacity = '0';
+            themeToggleBtn.textContent = 'Night Mode';
+        }
+
+        themeToggleBtn.addEventListener('click', () => {
+            isNight = !isNight;
+            document.body.classList.toggle('light-mode', !isNight); // Toggle light-mode class
+            bgDay.style.opacity = isNight ? '0' : '1';
+            bgNight.style.opacity = isNight ? '1' : '0';
+            themeToggleBtn.textContent = isNight ? 'Day Mode' : 'Night Mode';
+        });
+
+        // Event listener to open the resume modal
+        viewResumeBtn.addEventListener('click', (event) => {
+            event.preventDefault(); // Prevent default link behavior
+            // Set PDF source with zoom parameter
+            resumeIframe.src = 'assets/Kevin_Kiser_Resume71325.pdf#zoom=150'; // Changed zoom to 150
+            resumeModalOverlay.classList.add('show'); // Show the modal
+        });
+
+        // Event listener to close the resume modal
+        modalCloseBtn.addEventListener('click', () => {
+            resumeModalOverlay.classList.remove('show'); // Hide the modal
+            resumeIframe.src = ''; // Clear iframe src to stop loading PDF
+        });
+
+        // Close modal if clicking outside the content
+        resumeModalOverlay.addEventListener('click', (event) => {
+            if (event.target === resumeModalOverlay) {
+                resumeModalOverlay.classList.remove('show');
+                resumeIframe.src = '';
+            }
+        });
+    </script>
+
+</body>
+</html>

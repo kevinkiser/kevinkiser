@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Survival Analysis NOAA Hurricane</title>
+    <style>
+        /* Basic Reset and Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #333; /* Darker text for day mode */
+        }
+
+        /* --- Background Setup --- */
+        .background-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .background-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
+            transition: opacity 1.5s ease-in-out;
+        }
+
+        /* Default to Day Mode */
+        #bg-day {
+            background-image: url("assets/port_day.svg");
+            opacity: 1; 
+        }
+
+        #bg-night {
+            background-image: url("assets/port_night.svg");
+            opacity: 0;
+        }
+
+        /* --- Main Layout --- */
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            padding: 1.5rem;
+            gap: 1.5rem;
+        }
+
+        /* --- Content Containers --- */
+        .content-box {
+            background-color: rgba(255, 255, 255, 0.2); /* Lighter transparent box for day mode */
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .shiny-app-container {
+            flex-grow: 1; /* Allows this container to fill available space */
+            display: flex;
+            flex-direction: column;
+            padding: 0; /* Remove padding for seamless iframe */
+            overflow: hidden; /* Ensures iframe fits rounded corners */
+        }
+
+        .shiny-app-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* --- Buttons & Controls --- */
+        .controls-section {
+            display: flex;
+            justify-content: space-between; /* Pushes items to the edges */
+            align-items: center;
+            gap: 1rem;
+            flex-shrink: 0;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: #5dade2; /* Lighter blue */
+            color: #ffffff;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .btn:hover {
+            background-color: #3498db; /* Darker blue on hover */
+        }
+
+        .attribution {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .noaa-logo {
+            height: 40px;
+            width: auto;
+        }
+
+        .attribution-text {
+            font-size: 0.75rem;
+            color: #5dade2; /* Matched to the new button color */
+            font-weight: 500;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="background-container">
+        <div id="bg-day" class="background-image"></div>
+        <div id="bg-night" class="background-image"></div>
+    </div>
+
+    <div class="main-container">
+
+        <div class="content-box shiny-app-container">
+            <iframe class="shiny-app-iframe" src="https://akewpm-kevin-kiser.shinyapps.io/HurricaneApp/"></iframe>
+        </div>
+
+        <div class="controls-section">
+            <div>
+                <a href="kevin_kiser_portfolio.html" class="btn">Back to Portfolio</a>
+            </div>
+            <div class="attribution">
+                <img src="assets/NOAA_logo.svg" alt="NOAA Logo" class="noaa-logo" onerror="this.style.display='none'">
+                <p class="attribution-text">National Oceanic and Atmospheric Association Hurricane Data 2024</p>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

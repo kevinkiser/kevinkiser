@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Poker Evaluation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- mathjax for latex rendering -->
+    <script type="text/javascript" id="MathJax-script" async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+    </script>
+    <style>
+        /* theming and color variables */
+        :root {
+            /* night mode (default) */
+            --bg-container: rgba(17, 24, 39, 0.2); /* 0.2 transparency */
+            --bg-inner: #222c3f;
+            --border-content: rgba(255, 255, 255, 0.1);
+            --text-primary: #e2e8f0;
+            --text-secondary: #a0aec0;
+            --text-header: #60a5fa; /* blue-400 */
+            --text-accent: #ffb38a; /* light pink-orange */
+            --text-success: #16a34a; /* darker green */
+            --text-card: #2d3748;
+            --border-card: #cbd5e0;
+            --border-card-selected: #87CEEB;
+            --shadow-card-selected: rgba(135, 206, 235, 0.8);
+        }
+
+        body.light-mode {
+            /* day mode */
+            --bg-container: rgba(255, 255, 255, 0.2); /* 0.2 transparency */
+            --bg-inner: #f8fafc;
+            --border-content: rgba(0, 0, 0, 0.1);
+            --text-primary: #1e293b;
+            --text-secondary: #475569;
+            --text-header: #3b82f6; /* blue-600 */
+            --text-accent: #f59e0b; /* yellow-500 - keeping original for light mode */
+            --text-success: #16a34a; /* darker green */
+            --text-card: #1e293b;
+            --border-card: #94a3b8;
+            --border-card-selected: #0ea5e9; /* sky-500 */
+            --shadow-card-selected: rgba(14, 165, 233, 0.7);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--text-primary);
+            transition: color 0.3s;
+        }
+
+        /* background setup */
+        .background-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .background-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
+            transition: opacity 1.5s ease-in-out;
+        }
+
+        #bg-day {
+            background-image: url("assets/port_day.svg");
+            opacity: 0; 
+        }
+
+        #bg-night {
+            background-image: url("assets/port_night.svg");
+            opacity: 1;
+        }
+
+        .game-container {
+            background-color: var(--bg-container); /* uses rgba(..., 0.2) as requested */
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 900px;
+            transition: background-color 0.3s, border-color 0.3s;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid var(--border-content);
+        }
+        .inner-container {
+            background-color: var(--bg-inner);
+            transition: background-color 0.3s;
+        }
+        .header-text { color: var(--text-header); }
+        .accent-text { color: var(--text-accent); }
+        .success-text { color: var(--text-success); }
+
+        .card {
+            width: 100px;
+            height: 140px;
+            padding: 4px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid var(--border-card);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 2rem;
+            font-weight: 700;
+            background-color: #f7fafc;
+            color: var(--text-card);
+            user-select: none;
+            border-radius: 0.75rem;
+        }
+        .card.red { color: #e53e3e; }
+        .card.selected-for-discard {
+            border-color: var(--border-card-selected);
+            box-shadow: 0 0 15px var(--shadow-card-selected);
+            transform: translateY(-10px);
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .result-animation {
+            animation: result-fade-in 2s forwards;
+        }
+        @keyframes result-fade-in {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* modal styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background-color: var(--bg-container);
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.6);
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            border: 1px solid var(--border-content);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+        /* theme toggle */
+        .theme-switch-wrapper {
+            display: none;
+        }
+        .theme-switch {
+            display: none;
+        }
+        .theme-switch input {
+            display: none;
+        }
+        .slider {
+            display: none;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+
+    <div class="background-container">
+        <div id="bg-day" class="background-image"></div>
+        <div id="bg-night" class="background-image"></div>
+    </div>
+
+    <div class="game-container space-y-6">
+
+        <header class="text-center flex justify-between items-center">
+            <!-- The href="index.html" is the correct relative path to your main profile page -->
+            <a href="index.html" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg text-sm">← back to portfolio</a>
+            <h1 class="text-4xl font-bold accent-text">5-Card Draw Poker</h1>
+            <!-- more info on ev strategy button moved to header -->
+            <button id="ev-info-btn" class="bg-sky-600 hover:bg-sky-700 text-white font-bold py-2 px-4 rounded-lg text-sm">more info on ev strategy</button>
+        </header>
+
+        <!-- paytable and score -->
+        <div class="flex flex-col md:flex-row gap-6">
+            <div class="w-full md:w-1/2 inner-container p-4 rounded-xl shadow-inner">
+                <div class="flex justify-between items-center mb-2">
+                    <h2 class="text-xl font-semibold accent-text">Pay Table</h2>
+                    <select id="paytable-select" class="bg-gray-700 text-white rounded p-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <!-- options populated by js -->
+                    </select>
+                </div>
+                <div id="paytable-display" class="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
+                    <!-- paytable populated by js -->
+                </div>
+            </div>
+
+            <div class="w-full md:w-1/2 inner-container p-4 rounded-xl shadow-inner flex flex-col justify-between">
+                <div>
+                    <h2 class="text-xl font-semibold text-center success-text mb-2">Credits</h2>
+                    <div id="credits" class="text-6xl font-bold text-center success-text">25</div>
+                    <div id="bet-display" class="text-center text-lg accent-text mt-2 h-6"></div>
+                </div>
+                <div class="mt-4">
+                     <h2 class="text-xl font-semibold text-center accent-text mb-2">Set Bet</h2>
+                     <div class="flex justify-center items-center gap-4">
+                        <button id="bet-down-btn" class="bg-red-600 hover:bg-red-700 text-white font-bold w-10 h-10 rounded-full text-2xl shadow-md">-</button>
+                        <div id="bet-amount" class="text-4xl font-bold">1</div>
+                        <button id="bet-up-btn" class="bg-green-700 hover:bg-green-800 text-white font-bold w-10 h-10 rounded-full text-2xl shadow-md">+</button>
+                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- result display -->
+        <div id="result-container" class="h-10 text-center flex items-center justify-center">
+             <div id="result-display" class="text-3xl font-bold accent-text"></div>
+        </div>
+
+        <!-- cards -->
+        <div id="hand-container" class="flex justify-center items-center gap-4 flex-wrap min-h-[150px]">
+            <!-- cards will be populated by js -->
+        </div>
+
+        <!-- controls -->
+        <div class="flex justify-center gap-4 mt-4">
+            <button id="confirm-bet-btn" class="bg-[#ffb38a] hover:bg-[#e6a27e] text-black font-bold py-3 px-8 rounded-lg text-xl shadow-lg transition-transform transform hover:scale-105">confirm bet</button>
+            <button id="set-custom-hand-btn" class="bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 px-8 rounded-lg text-xl shadow-lg transition-transform transform hover:scale-105">set custom hand</button>
+            <button id="deal-btn" class="bg-[#ffb38a] hover:bg-[#e6a27e] text-black font-bold py-3 px-8 rounded-lg text-xl shadow-lg transition-transform transform hover:scale-105" disabled>deal</button>
+            <button id="ev-btn" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-8 rounded-lg text-xl shadow-lg transition-transform transform hover:scale-105 hidden">calculate ev</button>
+            <button id="draw-btn" class="bg-[#ffb38a] hover:bg-[#e6a27e] text-black font-bold py-3 px-8 rounded-lg text-xl shadow-lg transition-transform transform hover:scale-105 hidden">draw</button>
+        </div>
+    </div>
+
+    <!-- ev modal -->
+    <div id="ev-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-2xl font-bold">expected value (ev) calculation</h3>
+                <button id="ev-close-btn" class="text-gray-400 hover:text-white text-3xl">&times;</button>
+            </div>
+            <div id="ev-results" class="space-y-4 text-left">
+                <!-- ev results will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ev info modal -->
+    <div id="ev-info-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-2xl font-bold">using ev for optimal strategy</h3>
+                <button id="ev-info-close-btn" class="text-gray-400 hover:text-white text-3xl">&times;</button>
+            </div>
+            <div class="space-y-4 text-left text-secondary">
+                <p><strong class="text-primary">expected value (ev)</strong> is a powerful concept that represents the average outcome of a decision if it were repeated many times. in video poker, it's the most critical tool for making mathematically optimal plays.</p>
+                
+                <div>
+                    <h4 class="font-semibold text-lg text-primary mb-1">understanding expected value (ev)</h4>
+                    <p>ev quantifies the long-term average outcome of a particular action. in poker, it helps you choose the play that, over an infinite number of trials, will yield the highest average return. a higher ev indicates a more profitable decision. to compare strategies, select cards to discard, calculate ev, then change your selection and recalculate; the play with the highest ev is the mathematically optimal decision.</p>
+                    <p class="text-center text-lg font-bold my-4">
+                        $$ EV = \sum_{i=1}^{n} (P(i) \times X(i)) $$
+                    </p>
+                    <p>where:</p>
+                    <ul class="list-disc list-inside ml-4">
+                        <li>p(i) is the probability of a specific outcome (i) occurring, derived from 100,000 simulations.</li>
+                        <li>x(i) is the net value or payout associated with that outcome (i), accounting for the initial bet.</li>
+                    </ul>
+                    <p>the percentage shown next to the pay table represents the average percent return for that specific pay table.</p>
+                </div>
+
+                <div>
+                    <h4 class="font-semibold text-lg text-primary mb-1">accounting for losses (negative outcomes)</h4>
+                    <p>for any hand that does not result in a win (e.g., anything less than a pair of jacks or better), the outcome x(i) is the negative of your initial bet. the ev calculation inherently subtracts these losses from potential gains.</p>
+                </div>
+
+                <div>
+                    <h4 class="font-semibold text-lg text-primary mb-1">optimal strategy: pay table and implied odds</h4>
+                    <p>your optimal strategy is directly tied to the pay table. video poker machines often have high payouts for a straight flush, where the optimal play is frequently to take a low-probability draw towards a higher payout than you would get from drawing on a safer hand like a pair.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- custom hand input modal -->
+    <div id="custom-hand-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-2xl font-bold">enter custom hand</h3>
+                <button id="custom-hand-close-btn" class="text-gray-400 hover:text-white text-3xl">&times;</button>
+            </div>
+            <div class="space-y-4">
+                <p class="text-secondary">enter 5 cards separated by commas (e.g., as, kh, 10d, 7c, 2s). use 10 for ten.</p>
+                <input type="text" id="custom-hand-input" class="w-full p-2 rounded bg-gray-700 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g., as, kh, 10d, 7c, 2s">
+                <div id="custom-hand-error" class="text-red-400 text-sm mt-2"></div>
+                <button id="confirm-custom-hand-btn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg text-lg w-full">confirm hand</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // dom elements
+            const dealBtn = document.getElementById('deal-btn');
+            const drawBtn = document.getElementById('draw-btn');
+            const confirmBetBtn = document.getElementById('confirm-bet-btn');
+            const evBtn = document.getElementById('ev-btn');
+            const handContainer = document.getElementById('hand-container');
+            const creditsDisplay = document.getElementById('credits');
+            const resultDisplay = document.getElementById('result-display');
+            const paytableSelect = document.getElementById('paytable-select');
+            const paytableDisplay = document.getElementById('paytable-display');
+            const betAmountDisplay = document.getElementById('bet-amount');
+            const betDisplay = document.getElementById('bet-display');
+            const betUpBtn = document.getElementById('bet-up-btn');
+            const betDownBtn = document.getElementById('bet-down-btn');
+            const evModal = document.getElementById('ev-modal');
+            const evCloseBtn = document.getElementById('ev-close-btn');
+            const evResultsContainer = document.getElementById('ev-results');
+            const evInfoBtn = document.getElementById('ev-info-btn');
+            const evInfoModal = document.getElementById('ev-info-modal');
+            const evInfoCloseBtn = document.getElementById('ev-info-close-btn');
+            const bgDay = document.getElementById('bg-day');
+            const bgNight = document.getElementById('bg-night');
+            const setCustomHandBtn = document.getElementById('set-custom-hand-btn');
+            const customHandModal = document.getElementById('custom-hand-modal');
+            const customHandInput = document.getElementById('custom-hand-input');
+            const customHandError = document.getElementById('custom-hand-error');
+            const confirmCustomHandBtn = document.getElementById('confirm-custom-hand-btn');
+            const customHandCloseBtn = document.getElementById('custom-hand-close-btn');
+
+            // game state
+            const gameState = {
+                deck: [],
+                hand: [],
+                credits: 25,
+                betAmount: 1,
+                confirmedBet: 0,
+                currentPhase: 'betting', // betting, bet_confirmed, dealt, drawn
+            };
+
+            // paytables data from user request
+            const paytables = {
+                "99.54% (Jacks or Better)": { "Royal Flush": 800, "Straight Flush": 50, "Four of a Kind": 25, "Full House": 9, "Flush": 6, "Straight": 4, "Three of a Kind": 3, "Two Pair": 2, "Pair, Jacks or better": 1 },
+                "100.00% (Jacks or Better)": { "Royal Flush": 800, "Straight Flush": 90, "Four of a Kind": 25, "Full House": 9, "Flush": 6, "Straight": 4, "Three of a Kind": 2, "Two Pair": 2, "Pair, Jacks or better": 1 },
+                "99.90% (Jacks or Better)": { "Royal Flush": 940, "Straight Flush": 50, "Four of a Kind": 25, "Full House": 9, "Flush": 6, "Straight": 4, "Three of a Kind": 3, "Two Pair": 2, "Pair, Jacks or better": 1 },
+                "98.39% (Jacks or Better)": { "Royal Flush": 800, "Straight Flush": 50, "Four of a Kind": 25, "Full House": 8, "Flush": 6, "Straight": 4, "Three of a Kind": 3, "Two Pair": 2, "Pair, Jacks or better": 1 },
+                "97.30% (Jacks or Better)": { "Royal Flush": 800, "Straight Flush": 50, "Four of a Kind": 25, "Full House": 8, "Flush": 5, "Straight": 4, "Three of a Kind": 3, "Two Pair": 2, "Pair, Jacks or better": 1 },
+                "95.00% (Jacks or Better)": { "Royal Flush": 800, "Straight Flush": 50, "Four of a Kind": 25, "Full House": 6, "Flush": 5, "Straight": 4, "Three of a Kind": 3, "Two Pair": 2, "Pair, Jacks or better": 1 },
+            };
+
+            // core deck & card logic
+            const createDeck = (ranks, suits, copies = 1) => {
+                let deck = [];
+                for (let i = 0; i < copies; i++) {
+                    suits.forEach(suit => ranks.forEach(rank => deck.push({ rank, suit })));
+                }
+                return deck;
+            };
+
+            const shuffleDeck = deck => {
+                for (let i = deck.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [deck[i], deck[j]] = [deck[j], deck[i]];
+                }
+            };
+
+            const drawCards = (sourceDeck, numCards) => sourceDeck.splice(0, numCards);
+
+            const getRankValue = rank => ({'10': 10, 'J': 11, 'Q': 12, 'K': 13, 'A': 14}[rank] || parseInt(rank, 10));
+
+            const cardToString = card => card ? `${card.rank}${card.suit}` : 'N/A';
+
+            // hand evaluation
+            const evaluateHand = (hand) => {
+                if (hand.length !== 5) return { name: 'Invalid Hand' };
+
+                const ranks = hand.map(c => getRankValue(c.rank)).sort((a, b) => a - b);
+                const suits = hand.map(c => c.suit);
+                const rankCounts = hand.reduce((acc, c) => ({ ...acc, [c.rank]: (acc[c.rank] || 0) + 1 }), {});
+                const rankValues = Object.values(rankCounts).sort((a, b) => b - a);
+                
+                const isFlush = new Set(suits).size === 1;
+                const uniqueRanks = [...new Set(ranks)];
+                let isStraight = false;
+                if (uniqueRanks.length === 5) {
+                    if (JSON.stringify(uniqueRanks) === JSON.stringify([2, 3, 4, 5, 14])) { isStraight = true; } 
+                    else if (uniqueRanks[4] - uniqueRanks[0] === 4) { isStraight = true; }
+                }
+
+                if (isStraight && isFlush) {
+                    if (JSON.stringify(uniqueRanks) === JSON.stringify([10,11,12,13,14])) return { name: "Royal Flush"};
+                    return { name: "Straight Flush" };
+                }
+                if (rankValues[0] === 5) return { name: "Five of a Kind" };
+                if (rankValues[0] === 4) return { name: "Four of a Kind" };
+                if (rankValues[0] === 3 && rankValues[1] === 2) return { name: "Full House" };
+                if (isFlush) return { name: "Flush" };
+                if (isStraight) return { name: "Straight" };
+                if (rankValues[0] === 3) return { name: "Three of a Kind" };
+                if (rankValues[0] === 2 && rankValues[1] === 2) return { name: "Two Pair" };
+                if (rankValues[0] === 2) {
+                    const pairRank = getRankValue(Object.keys(rankCounts).find(r => rankCounts[r]===2));
+                    if (pairRank >= 11) return { name: "Pair, Jacks or better" };
+                }
+                
+                return { name: "No Win" };
+            };
+
+            // game flow
+            const handleConfirmBet = () => {
+                if (gameState.credits < gameState.betAmount) {
+                    showResult("not enough credits!", 'win');
+                    return;
+                }
+                gameState.confirmedBet = gameState.betAmount;
+                gameState.credits -= gameState.confirmedBet;
+                gameState.currentPhase = 'bet_confirmed';
+                updateUI();
+            };
+
+            const handleDeal = () => {
+                const ranks = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+                const suits = ['♠','♥','♦','♣'];
+                gameState.deck = createDeck(ranks, suits);
+                shuffleDeck(gameState.deck);
+                
+                gameState.hand = drawCards(gameState.deck, 5);
+                gameState.hand.forEach(card => card.selected = false);
+                gameState.currentPhase = 'dealt';
+                updateUI();
+                clearResult();
+                showResult("select cards to replace", 'info');
+            };
+
+            const handleDraw = () => {
+                clearResult();
+
+                for (let i = 0; i < 5; i++) {
+                    if (gameState.hand[i].selected) {
+                        if (gameState.deck.length > 0) {
+                            gameState.hand[i] = drawCards(gameState.deck, 1)[0];
+                        } else {
+                            showResult("deck is empty!", 'win');
+                        }
+                    }
+                }
+                gameState.currentPhase = 'drawn';
+
+                const result = evaluateHand(gameState.hand);
+                const winnings = calculateWinnings(result.name);
+
+                if (winnings > 0) {
+                    const totalReturn = winnings + gameState.confirmedBet;
+                    gameState.credits += totalReturn;
+                    showResult(`${result.name}! you win ${winnings} credits!`, 'win');
+                } else {
+                    showResult("no winning hand. try again.", 'win');
+                }
+                
+                updateUI();
+                
+                setTimeout(() => {
+                    if (gameState.credits < 1) {
+                        showResult("out of credits! restarting game.", 'win');
+                        setTimeout(resetGame, 2000);
+                    } else {
+                        gameState.currentPhase = 'betting';
+                        gameState.betAmount = 1;
+                        gameState.confirmedBet = 0;
+                        gameState.hand = [];
+                        updateUI();
+                        handContainer.innerHTML = '';
+                        clearResult();
+                    }
+                }, 3000);
+            };
+
+            const calculateWinnings = (resultName) => {
+                const selectedPaytableName = paytableSelect.value;
+                const currentPaytable = paytables[selectedPaytableName];
+                let winnings = 0;
+                if (currentPaytable && currentPaytable[resultName]) {
+                    winnings = currentPaytable[resultName] * gameState.confirmedBet;
+                }
+                return winnings;
+            };
+
+            const resetGame = () => {
+                gameState.credits = 25;
+                gameState.betAmount = 1;
+                gameState.confirmedBet = 0;
+                gameState.currentPhase = 'betting';
+                gameState.hand = [];
+                updateUI();
+                clearResult();
+                handContainer.innerHTML = '';
+            };
+
+            // ev calculation (monte carlo simulation)
+            const handleEVCalculation = async () => {
+                evResultsContainer.innerHTML = `<p class="text-center text-lg">calculating... please wait.</p>`;
+                evModal.classList.remove('hidden');
+
+                await new Promise(resolve => setTimeout(resolve, 50));
+
+                const heldCards = gameState.hand.filter(card => !card.selected);
+                const cardsToDrawCount = 5 - heldCards.length;
+                const fullDeck = createDeck(['2','3','4','5','6','7','8','9','10','J','Q','K','A'], ['♠','♥','♦','♣']);
+                const remainingDeck = fullDeck.filter(deckCard => 
+                    !gameState.hand.some(handCard => handCard.rank === deckCard.rank && handCard.suit === deckCard.suit)
+                );
+
+                const numSimulations = 100000;
+                let totalNetOutcome = 0;
+                const handCounts = {};
+                let lossCount = 0;
+                const currentPaytable = paytables[paytableSelect.value];
+
+                for (let i = 0; i < numSimulations; i++) {
+                    shuffleDeck(remainingDeck);
+                    const drawnCards = remainingDeck.slice(0, cardsToDrawCount);
+                    const finalHand = [...heldCards, ...drawnCards];
+                    
+                    const result = evaluateHand(finalHand);
+                    if (result.name !== "No Win") {
+                        const winnings = calculateWinnings(result.name);
+                        totalNetOutcome += winnings;
+                        handCounts[result.name] = (handCounts[result.name] || 0) + 1;
+                    } else {
+                        totalNetOutcome -= gameState.confirmedBet;
+                        lossCount++;
+                    }
+                }
+
+                const totalEV = totalNetOutcome / numSimulations;
+                
+                let resultsHTML = `<div class="mb-4 p-3 inner-container rounded-lg">
+                    <p class="text-lg">holding: <span class="font-bold success-text">${heldCards.map(cardToString).join(', ') || 'nothing'}</span></p>
+                    <p class="text-lg">total expected value (ev): <span class="font-bold success-text">${totalEV.toFixed(4)}</span></p>
+                    <p class="text-sm text-secondary">(based on ${numSimulations} simulations with a ${gameState.confirmedBet} credit bet)</p>
+                </div>`;
+                
+                resultsHTML += `<h4 class="text-xl font-semibold accent-text mb-2">ev breakdown:</h4>`;
+                
+                const sortedHands = Object.keys(handCounts).sort((a, b) => {
+                    return (currentPaytable[b] || 0) - (currentPaytable[a] || 0);
+                });
+
+                for (const handName of sortedHands) {
+                    const count = handCounts[handName];
+                    const probability = count / numSimulations;
+                    const winnings = calculateWinnings(handName);
+                    const paytableMultiplier = currentPaytable[handName] || 0;
+                    const evContribution = probability * winnings;
+
+                    resultsHTML += `
+                        <div class="p-3 bg-green-900 bg-opacity-30 rounded-lg mb-2">
+                            <p class="font-bold text-lg text-green-300">${handName}</p>
+                            <p>ev contribution: <span class="font-semibold text-white">${evContribution.toFixed(4)}</span></p>
+                            <p class="text-sm text-gray-400">
+                                net win: ${paytableMultiplier} &times; ${gameState.confirmedBet} bet = ${winnings} credits
+                            </p>
+                            <p class="text-sm text-gray-400">
+                                probability: ${count} / ${numSimulations} &asymp; ${(probability * 100).toFixed(4)}%
+                            </p>
+                        </div>
+                    `;
+                }
+                
+                if (lossCount > 0) {
+                    const lossProbability = lossCount / numSimulations;
+                    const lossValue = -gameState.confirmedBet;
+                    const lossEVContribution = lossProbability * lossValue;
+                     resultsHTML += `
+                        <div class="p-3 bg-red-900 bg-opacity-30 rounded-lg mb-2">
+                            <p class="font-bold text-lg text-red-300">no win</p>
+                            <p>ev contribution: <span class="font-semibold text-white">${lossEVContribution.toFixed(4)}</span></p>
+                            <p class="text-sm text-gray-400">
+                                net win: ${lossValue} credits
+                            </p>
+                            <p class="text-sm text-gray-400">
+                                probability: ${lossCount} / ${numSimulations} &asymp; ${(lossProbability * 100).toFixed(4)}%
+                            </p>
+                        </div>
+                    `;
+                }
+
+                evResultsContainer.innerHTML = resultsHTML;
+            };
+
+            // parse custom hand input
+            const validRanks = ['2','3','4','5','6','7','8','9','10','j','q','k','a'];
+            const validSuits = ['s','h','d','c'];
+
+            const parseHandInput = (inputString) => {
+                const cards = inputString.split(',').map(s => s.trim());
+                const parsedHand = [];
+                const seenCards = new Set();
+
+                if (cards.length !== 5) {
+                    return { error: "please enter exactly 5 cards." };
+                }
+
+                for (const cardStr of cards) {
+                    let rankChar, suitChar;
+                    let lowerCaseCardStr = cardStr.toLowerCase();
+
+                    if (lowerCaseCardStr.length === 2) {
+                        rankChar = lowerCaseCardStr[0];
+                        suitChar = lowerCaseCardStr[1];
+                    } else if (lowerCaseCardStr.length === 3 && lowerCaseCardStr.substring(0, 2) === '10') {
+                        rankChar = '10';
+                        suitChar = lowerCaseCardStr[2];
+                    } else {
+                        return { error: `invalid card format: ${cardStr}. use rank (2-a, 10) and suit (s,c,h,d).` };
+                    }
+
+                    let validationRankChar = rankChar;
+                    if (rankChar !== '10') {
+                        validationRankChar = rankChar.toLowerCase();
+                    }
+
+                    if (!validRanks.includes(validationRankChar)) {
+                        return { error: `invalid rank '${cardStr.substring(0, cardStr.length - 1)}' in card '${cardStr}'.` };
+                    }
+                    if (!validSuits.includes(suitChar)) {
+                        return { error: `invalid suit '${suitChar}' in card '${cardStr}'.` };
+                    }
+
+                    const card = {
+                        rank: rankChar.toUpperCase() === 'J' ? 'J' :
+                              rankChar.toUpperCase() === 'Q' ? 'Q' :
+                              rankChar.toUpperCase() === 'K' ? 'K' :
+                              rankChar.toUpperCase() === 'A' ? 'A' :
+                              rankChar === '10' ? '10' :
+                              rankChar.toUpperCase(),
+                        suit: suitChar === 's' ? '♠' : suitChar === 'h' ? '♥' : suitChar === 'd' ? '♦' : '♣',
+                        selected: false
+                    };
+
+                    const cardKey = `${card.rank}${card.suit}`;
+                    if (seenCards.has(cardKey)) {
+                        return { error: `duplicate card entered: ${cardKey}.` };
+                    }
+                    seenCards.add(cardKey);
+                    parsedHand.push(card);
+                }
+                return { hand: parsedHand };
+            };
+
+            // ui functions
+            const renderHand = () => {
+                handContainer.innerHTML = '';
+                gameState.hand.forEach((card, index) => {
+                    const cardEl = document.createElement('div');
+                    cardEl.className = 'card';
+                    if (['♥', '♦'].includes(card.suit)) {
+                        cardEl.classList.add('red');
+                    }
+                    if (card.selected) {
+                        cardEl.classList.add('selected-for-discard');
+                    }
+                    cardEl.innerHTML = `<span>${card.rank}</span><span class="text-3xl">${card.suit}</span>`;
+                    cardEl.addEventListener('click', () => toggleSelection(index));
+                    handContainer.appendChild(cardEl);
+                });
+            };
+
+            const toggleSelection = (index) => {
+                if (gameState.currentPhase !== 'dealt') return;
+                gameState.hand[index].selected = !gameState.hand[index].selected;
+                renderHand();
+            };
+
+            const updateUI = () => {
+                creditsDisplay.textContent = gameState.credits;
+                betAmountDisplay.textContent = gameState.betAmount;
+
+                betDisplay.textContent = gameState.confirmedBet > 0 && gameState.currentPhase !== 'betting' ? `bet: ${gameState.confirmedBet}` : '';
+
+                if (gameState.hand.length > 0) {
+                    renderHand();
+                }
+
+                const isBetting = gameState.currentPhase === 'betting';
+                const isBetConfirmed = gameState.currentPhase === 'bet_confirmed';
+                const isDealt = gameState.currentPhase === 'dealt';
+
+                betUpBtn.disabled = !isBetting;
+                betDownBtn.disabled = !isBetting;
+                confirmBetBtn.style.display = isBetting ? 'inline-block' : 'none';
+                setCustomHandBtn.style.display = isBetting ? 'inline-block' : 'none';
+                dealBtn.style.display = isBetConfirmed ? 'inline-block' : 'none';
+                evBtn.style.display = isDealt ? 'inline-block' : 'none';
+                drawBtn.style.display = isDealt ? 'inline-block' : 'none';
+                
+                dealBtn.disabled = !isBetConfirmed;
+            };
+            
+            const showResult = (message, type = 'win') => {
+                resultDisplay.textContent = message;
+                resultDisplay.classList.remove('result-animation', 'text-sky-400', 'accent-text');
+                
+                if (type === 'info') {
+                    resultDisplay.classList.add('text-sky-400');
+                } else {
+                    resultDisplay.classList.add('accent-text');
+                    resultDisplay.classList.add('result-animation');
+                }
+            };
+
+            const clearResult = () => {
+                resultDisplay.textContent = '';
+                resultDisplay.classList.remove('result-animation', 'text-sky-400', 'accent-text');
+            };
+            
+            const populatePaytableSelect = () => {
+                for (const name in paytables) {
+                    const option = document.createElement('option');
+                    option.value = name;
+                    option.textContent = name;
+                    paytableSelect.appendChild(option);
+                }
+            };
+
+            const updatePaytableDisplay = () => {
+                const selectedName = paytableSelect.value;
+                const table = paytables[selectedName];
+                paytableDisplay.innerHTML = '';
+                const handOrder = ["Royal Flush", "Straight Flush", "Five of a Kind", "Four of a Kind", "Full House", "Flush", "Straight", "Three of a Kind", "Two Pair", "Pair, Jacks or better"];
+                handOrder.forEach(handName => {
+                    if (table[handName]) {
+                        const handEl = document.createElement('div');
+                        handEl.textContent = handName;
+                        const payoutEl = document.createElement('div');
+                        payoutEl.textContent = table[handName];
+                        payoutEl.classList.add('text-right', 'accent-text', 'font-semibold');
+                        paytableDisplay.appendChild(handEl);
+                        paytableDisplay.appendChild(payoutEl);
+                    }
+                });
+            };
+            
+            // event listeners
+            confirmBetBtn.addEventListener('click', handleConfirmBet);
+            dealBtn.addEventListener('click', handleDeal);
+            drawBtn.addEventListener('click', handleDraw);
+            evBtn.addEventListener('click', handleEVCalculation);
+            evCloseBtn.addEventListener('click', () => evModal.classList.add('hidden'));
+            evInfoBtn.addEventListener('click', () => evInfoModal.classList.remove('hidden'));
+            evInfoCloseBtn.addEventListener('click', () => evInfoModal.classList.add('hidden'));
+            paytableSelect.addEventListener('change', updatePaytableDisplay);
+
+            betUpBtn.addEventListener('click', () => {
+                if (gameState.betAmount < 100 && gameState.betAmount < gameState.credits) {
+                    gameState.betAmount++;
+                    updateUI();
+                }
+            });
+
+            betDownBtn.addEventListener('click', () => {
+                if (gameState.betAmount > 1) {
+                    gameState.betAmount--;
+                    updateUI();
+                }
+            });
+
+            setCustomHandBtn.addEventListener('click', () => {
+                customHandModal.classList.remove('hidden');
+                customHandInput.value = ''; // clear previous input
+                customHandError.textContent = ''; // clear previous errors
+            });
+
+            customHandCloseBtn.addEventListener('click', () => {
+                customHandModal.classList.add('hidden');
+            });
+
+            confirmCustomHandBtn.addEventListener('click', () => {
+                const input = customHandInput.value;
+                const { hand, error } = parseHandInput(input);
+
+                if (error) {
+                    customHandError.textContent = error;
+                } else {
+                    if (gameState.credits < gameState.betAmount) {
+                        customHandError.textContent = "not enough credits to place this bet!";
+                        return;
+                    }
+                    
+                    // initialize a full deck
+                    const ranks = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+                    const suits = ['♠','♥','♦','♣'];
+                    let fullDeck = createDeck(ranks, suits);
+
+                    // remove custom hand cards from the deck
+                    const customHandKeys = hand.map(card => `${card.rank}${card.suit}`);
+                    gameState.deck = fullDeck.filter(deckCard => 
+                        !customHandKeys.includes(`${deckCard.rank}${deckCard.suit}`)
+                    );
+                    shuffleDeck(gameState.deck); // shuffle the remaining deck
+
+                    gameState.confirmedBet = gameState.betAmount; // deduct bet for custom hand
+                    gameState.credits -= gameState.confirmedBet;
+                    gameState.hand = hand;
+                    gameState.currentPhase = 'dealt';
+                    customHandModal.classList.add('hidden');
+                    updateUI();
+                    clearResult();
+                    showResult("custom hand dealt! select cards to replace", 'info');
+                }
+            });
+
+            // initial setup
+            document.body.classList.remove('light-mode');
+            bgDay.style.opacity = '0';
+            bgNight.style.opacity = '1';
+
+            populatePaytableSelect();
+            updatePaytableDisplay();
+            updateUI();
+        });
+    </script>
+</body>
+</html>
