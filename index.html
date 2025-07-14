@@ -7,30 +7,38 @@
     <style>
         /* theme variables */
         :root {
+            /* Night Mode */
             --text-primary: #ffffff;
             --text-header: #ffffff;
             --content-bg: rgba(17, 24, 39, 0.1);
             --border-color: rgba(255, 255, 255, 0.1);
-            --btn-bg: #3498db;
-            --btn-hover-bg: #2980b9;
             --btn-text: #ffffff;
-            --theme-toggle-bg: #4a5568;
-            --theme-toggle-hover-bg: #2d3748;
+            
+            /* Night Mode Gradients */
+            --link-gradient-start: #228B22; /* Forest Green */
+            --link-gradient-end: #003366; /* Dark Cerulean */
+            --link-gradient-hover-start: #1A6F1A; /* Darker Green */
+            --link-gradient-hover-end: #002244; /* Darker Cerulean */
+
             --modal-bg: rgba(0, 0, 0, 0.8);
             --modal-content-bg: #ffffff;
             --modal-text: #333;
         }
 
         body.light-mode {
+            /* Day Mode */
             --text-primary: #333;
             --text-header: #2c3e50;
             --content-bg: rgba(255, 255, 255, 0.2);
             --border-color: rgba(255, 255, 255, 0.2);
-            --btn-bg: #3498db;
-            --btn-hover-bg: #2980b9;
-            --btn-text: #ffffff;
-            --theme-toggle-bg: #4a5568;
-            --theme-toggle-hover-bg: #2d3748;
+            --btn-text: #ffffff; /* Button text color remains white for contrast */
+
+            /* Day Mode Gradients */
+            --link-gradient-start: #4B0082; /* Darker, more blue purple (Indigo) */
+            --link-gradient-end: #000080; /* Dark Blue (Navy) */
+            --link-gradient-hover-start: #3A0066; /* Darker Indigo */
+            --link-gradient-hover-end: #000066; /* Darker Navy */
+
             --modal-bg: rgba(0, 0, 0, 0.6);
             --modal-content-bg: #ffffff;
             --modal-text: #333;
@@ -87,7 +95,11 @@
 
         .top-section {
             display: flex;
+            justify-content: space-between; /* Distributes space between items */
+            align-items: flex-start; /* Aligns items to the start of the cross axis */
             gap: 1rem;
+            max-width: 1000px; /* Constrain overall width */
+            margin: 0 auto; /* Center the section */
         }
 
         .bottom-section {
@@ -102,23 +114,27 @@
         .content-box {
             background-color: var(--content-bg);
             border-radius: 12px;
-            padding: 1rem;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 0.75rem; /* Decreased padding */
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2); /* Increased shadow */
             backdrop-filter: blur(5px);
             -webkit-backdrop-filter: blur(5px);
             border: 1px solid var(--border-color);
-            transition: background-color 0.3s ease, border-color 0.3s ease;
+            transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
         }
         
         .info-container {
-            flex-basis: 30%;
+            flex-basis: 250px; /* Minimum width for info container */
+            flex-grow: 1; /* Allows it to grow */
+            flex-shrink: 0; /* Prevents it from shrinking below its content */
             display: flex;
             align-items: center;
             gap: 1rem;
         }
 
         .bio-container {
-            flex-basis: 70%;
+            flex-basis: 650px; /* Minimum width for bio container */
+            flex-grow: 1; /* Allows it to grow */
+            flex-shrink: 0; /* Prevents it from shrinking below its content */
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -148,70 +164,86 @@
         }
 
         h1 {
-            font-size: 1.8rem;
-            color: var(--text-header);
+            font-size: 1rem; /* Increased to 16pt */
+            background-image: linear-gradient(to right, var(--link-gradient-start), var(--link-gradient-end));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: transparent; /* Fallback for non-webkit browsers */
             margin-bottom: 0.1rem;
-            transition: color 0.3s ease;
+            transition: background-image 0.3s ease;
         }
 
-        h2 {
-            font-size: 1.1rem;
-            font-weight: 400;
+        h2, h3 { /* Combined h2 and h3 for consistent styling */
+            font-size: 0.75rem; /* Increased to 12pt */
+            font-weight: 400; /* Set to match the thicker weight */
             color: var(--text-header);
-            margin-bottom: 0.25rem;
-            transition: color 0.3s ease;
-        }
-        
-        h3 {
-            font-size: 1rem;
-            font-weight: 300;
-            color: var(--text-header);
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.1rem; /* Decreased spacing */
             transition: color 0.3s ease;
         }
 
         .contact-info a {
-            color: #3498db;
-            text-decoration: none;
-            font-size: 0.9rem;
+            background-image: linear-gradient(to right, var(--link-gradient-start), var(--link-gradient-end));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: transparent; /* Fallback for non-webkit browsers */
+            text-decoration: underline; /* Keep underline for links */
+            font-size: 0.75rem; /* Increased to 12pt */
             font-weight: 500;
+            transition: background-image 0.3s ease;
         }
 
         .contact-info a:hover {
-            text-decoration: underline;
+            background-image: linear-gradient(to right, var(--link-gradient-hover-start), var(--link-gradient-hover-end));
+            text-decoration: none;
         }
 
         .bio-container p {
-            font-size: 0.9rem;
+            font-size: 0.75rem; /* Increased to 12pt */
         }
+        /* Ensure links within the bio also use the new color */
+        .bio-container p a {
+            background-image: linear-gradient(to right, var(--link-gradient-start), var(--link-gradient-end));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: transparent; /* Fallback for non-webkit browsers */
+            text-decoration: underline;
+            transition: background-image 0.3s ease;
+        }
+        .bio-container p a:hover {
+            background-image: linear-gradient(to right, var(--link-gradient-hover-start), var(--link-gradient-hover-end));
+            text-decoration: none;
+        }
+
 
         /* buttons */
         .btn {
             display: inline-block;
-            background-color: var(--btn-bg);
             color: var(--btn-text);
-            padding: 12px 24px;
             text-decoration: none;
             border-radius: 8px;
             font-weight: 500;
             border: none;
             cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.2s ease;
+            transition: background-image 0.3s ease, transform 0.2s ease; /* Transition background-image */
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
-
-        .btn:hover {
-            background-color: var(--btn-hover-bg);
-            transform: translateY(-2px);
-        }
         
-        #theme-toggle {
-            background-color: var(--theme-toggle-bg);
-            padding: 8px 16px;
-            font-size: 0.8rem;
+        #theme-toggle,
+        #view-resume-btn { /* Apply same styling to view resume button */
+            background-image: linear-gradient(to right, var(--link-gradient-start), var(--link-gradient-end));
+            width: 120px; /* Fixed width to make them the same size */
+            height: 40px; /* Fixed height to ensure consistency */
+            display: flex; /* Use flexbox for centering content */
+            justify-content: center; /* Center horizontally */
+            align-items: center; /* Center vertically */
+            font-size: 0.8rem; /* Keep consistent font size for buttons */
         }
-        #theme-toggle:hover {
-            background-color: var(--theme-toggle-hover-bg);
+        #theme-toggle:hover,
+        #view-resume-btn:hover { /* Apply same hover styling to view resume button */
+            background-image: linear-gradient(to right, var(--link-gradient-hover-start), var(--link-gradient-hover-end));
         }
 
         /* project button specifics */
@@ -358,6 +390,7 @@
             }
             .top-section {
                 flex-direction: column;
+                max-width: none; /* Remove max-width on small screens */
             }
             .info-container, .bio-container {
                 flex-basis: auto;
@@ -388,17 +421,16 @@
                 <img src="assets/prof_pic.jpeg" alt="Kevin Kiser Profile Picture" class="profile-pic" onerror="this.onerror=null;this.src='https://placehold.co/100x120/EFEFEF/AAAAAA&text=Profile';">
                 <div class="info-text">
                     <h1>Kevin Kiser</h1>
-                    <h2>Data Scientist</h2>
-                    <h3>Willamette University</h3>
-                    <div class="contact-info">
-                        <a href="mailto:k13kiser@gmail.com">k13kiser@gmail.com</a>
-                    </div>
+                    <h2>Willamette University MS Data Science</h2>
+                    <h3>Portland State University BS Data Science</h3>
+                    <h3>Cal Poly-San Luis Obispo BS Environmental Management</h3>
+                    <!-- Email moved to bio container -->
                 </div>
             </div>
 
             <div class="content-box bio-container">
                 <p>
-                    A dedicated and analytical data scientist with a strong foundation in statistical analysis, machine learning, and data visualization. Passionate about uncovering insights from complex datasets to drive strategic decision-making. Skilled in programming languages such as Python and R, and experienced with a variety of data science libraries and tools. Eager to apply academic knowledge and practical skills to solve real-world problems.
+                    I am a data scientist with a passion for the environment, and I am always looking for innovative ways to use data to make an impact. As Cofounder and Principal Data Engineer at Boiling Frog Games, I’ve had the unique opportunity to apply my skills to game development, blending creativity with technical expertise. Outside of work, I am a poker and card game enthusiast who loves any game that statistics can beat. I am excited to bring my diverse skills to new challenges where data meets real-world impact. Connect with me on <a href="https://www.linkedin.com/in/kevin-kiser-527850271" target="_blank" rel="noopener noreferrer">LinkedIn</a> or visit me at <a href="http://www.boilingfroggames.com" target="_blank" rel="noopener noreferrer">Boiling Frog Games</a>. Contact at <a href="mailto:k13kiser@gmail.com">k13kiser@gmail.com</a>.
                 </p>
             </div>
         </div>
