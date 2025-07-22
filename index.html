@@ -7,38 +7,30 @@
     <style>
         /* theme variables */
         :root {
-            /* Night Mode */
             --text-primary: #ffffff;
             --text-header: #ffffff;
             --content-bg: rgba(17, 24, 39, 0.1);
             --border-color: rgba(255, 255, 255, 0.1);
             --btn-text: #ffffff;
-            
-            /* Night Mode Gradients */
-            --link-gradient-start: #228B22; /* Forest Green */
-            --link-gradient-end: #003366; /* Dark Cerulean */
-            --link-gradient-hover-start: #1A6F1A; /* Darker Green */
-            --link-gradient-hover-end: #002244; /* Darker Cerulean */
-
+            --link-gradient-start: #228B22;
+            --link-gradient-end: #003366;
+            --link-gradient-hover-start: #1A6F1A;
+            --link-gradient-hover-end: #002244;
             --modal-bg: rgba(0, 0, 0, 0.8);
             --modal-content-bg: #ffffff;
             --modal-text: #333;
         }
 
         body.light-mode {
-            /* Day Mode */
             --text-primary: #333;
             --text-header: #2c3e50;
             --content-bg: rgba(255, 255, 255, 0.2);
             --border-color: rgba(255, 255, 255, 0.2);
-            --btn-text: #ffffff; /* Button text color remains white for contrast */
-
-            /* Day Mode Gradients */
-            --link-gradient-start: #4B0082; /* Darker, more blue purple (Indigo) */
-            --link-gradient-end: #000080; /* Dark Blue (Navy) */
-            --link-gradient-hover-start: #3A0066; /* Darker Indigo */
-            --link-gradient-hover-end: #000066; /* Darker Navy */
-
+            --btn-text: #ffffff;
+            --link-gradient-start: #4B0082;
+            --link-gradient-end: #000080;
+            --link-gradient-hover-start: #3A0066;
+            --link-gradient-hover-end: #000066;
             --modal-bg: rgba(0, 0, 0, 0.6);
             --modal-content-bg: #ffffff;
             --modal-text: #333;
@@ -95,11 +87,11 @@
 
         .top-section {
             display: flex;
-            justify-content: space-between; /* Distributes space between items */
-            align-items: flex-start; /* Aligns items to the start of the cross axis */
+            justify-content: space-between;
+            align-items: flex-start;
             gap: 1rem;
-            max-width: 1000px; /* Constrain overall width */
-            margin: 0 auto; /* Center the section */
+            max-width: 1000px;
+            margin: 0 auto;
         }
 
         .bottom-section {
@@ -114,8 +106,8 @@
         .content-box {
             background-color: var(--content-bg);
             border-radius: 12px;
-            padding: 0.75rem; /* Decreased padding */
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2); /* Increased shadow */
+            padding: 0.75rem;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
             backdrop-filter: blur(5px);
             -webkit-backdrop-filter: blur(5px);
             border: 1px solid var(--border-color);
@@ -123,18 +115,18 @@
         }
         
         .info-container {
-            flex-basis: 250px; /* Minimum width for info container */
-            flex-grow: 1; /* Allows it to grow */
-            flex-shrink: 0; /* Prevents it from shrinking below its content */
+            flex-basis: 250px;
+            flex-grow: 1;
+            flex-shrink: 0;
             display: flex;
             align-items: center;
             gap: 1rem;
         }
 
         .bio-container {
-            flex-basis: 650px; /* Minimum width for bio container */
-            flex-grow: 1; /* Allows it to grow */
-            flex-shrink: 0; /* Prevents it from shrinking below its content */
+            flex-basis: 650px;
+            flex-grow: 1;
+            flex-shrink: 0;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -164,21 +156,21 @@
         }
 
         h1 {
-            font-size: 1rem; /* Increased to 16pt */
+            font-size: 1rem;
             background-image: linear-gradient(to right, var(--link-gradient-start), var(--link-gradient-end));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            color: transparent; /* Fallback for non-webkit browsers */
+            color: transparent;
             margin-bottom: 0.1rem;
             transition: background-image 0.3s ease;
         }
 
-        h2, h3 { /* Combined h2 and h3 for consistent styling */
-            font-size: 0.75rem; /* Increased to 12pt */
-            font-weight: 400; /* Set to match the thicker weight */
+        h2, h3 {
+            font-size: 0.75rem;
+            font-weight: 400;
             color: var(--text-header);
-            margin-bottom: 0.1rem; /* Decreased spacing */
+            margin-bottom: 0.1rem;
             transition: color 0.3s ease;
         }
 
@@ -187,9 +179,9 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            color: transparent; /* Fallback for non-webkit browsers */
-            text-decoration: underline; /* Keep underline for links */
-            font-size: 0.75rem; /* Increased to 12pt */
+            color: transparent;
+            text-decoration: underline;
+            font-size: 0.75rem;
             font-weight: 500;
             transition: background-image 0.3s ease;
         }
@@ -200,15 +192,15 @@
         }
 
         .bio-container p {
-            font-size: 0.75rem; /* Increased to 12pt */
+            font-size: 0.75rem;
         }
-        /* Ensure links within the bio also use the new color */
+
         .bio-container p a {
             background-image: linear-gradient(to right, var(--link-gradient-start), var(--link-gradient-end));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            color: transparent; /* Fallback for non-webkit browsers */
+            color: transparent;
             text-decoration: underline;
             transition: background-image 0.3s ease;
         }
@@ -227,26 +219,25 @@
             font-weight: 500;
             border: none;
             cursor: pointer;
-            transition: background-image 0.3s ease, transform 0.2s ease; /* Transition background-image */
+            transition: background-image 0.3s ease, transform 0.2s ease;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         
         #theme-toggle,
-        #view-resume-btn { /* Apply same styling to view resume button */
+        #view-resume-btn {
             background-image: linear-gradient(to right, var(--link-gradient-start), var(--link-gradient-end));
-            width: 120px; /* Fixed width to make them the same size */
-            height: 40px; /* Fixed height to ensure consistency */
-            display: flex; /* Use flexbox for centering content */
-            justify-content: center; /* Center horizontally */
-            align-items: center; /* Center vertically */
-            font-size: 0.8rem; /* Keep consistent font size for buttons */
+            width: 120px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.8rem;
         }
         #theme-toggle:hover,
-        #view-resume-btn:hover { /* Apply same hover styling to view resume button */
+        #view-resume-btn:hover {
             background-image: linear-gradient(to right, var(--link-gradient-hover-start), var(--link-gradient-hover-end));
         }
 
-        /* project button specifics */
         .project-btn {
             display: flex;
             flex-direction: column;
@@ -390,7 +381,7 @@
             }
             .top-section {
                 flex-direction: column;
-                max-width: none; /* Remove max-width on small screens */
+                max-width: none;
             }
             .info-container, .bio-container {
                 flex-basis: auto;
@@ -424,13 +415,12 @@
                     <h2>Willamette University MS Data Science</h2>
                     <h3>Portland State University BS Data Science</h3>
                     <h3>Cal Poly-San Luis Obispo BS Environmental Management</h3>
-                    <!-- Email moved to bio container -->
                 </div>
             </div>
 
             <div class="content-box bio-container">
                 <p>
-                    I am a data scientist with a passion for the environment, and I am always looking for innovative ways to use data to make an impact. As Cofounder and Principal Data Engineer at Boiling Frog Games, I’ve had the unique opportunity to apply my skills to game development, blending creativity with technical expertise. Outside of work, I am a poker and card game enthusiast who loves any game that statistics can beat. I am excited to bring my diverse skills to new challenges where data meets real-world impact. Connect with me on <a href="https://www.linkedin.com/in/kevin-kiser-527850271" target="_blank" rel="noopener noreferrer">LinkedIn</a> or visit me at <a href="http://www.boilingfroggames.com" target="_blank" rel="noopener noreferrer">Boiling Frog Games</a>. Contact at <a href="mailto:k13kiser@gmail.com">k13kiser@gmail.com</a>.
+                    I am a data scientist with a passion for the environment, and I am always looking for innovative ways to use data to make an impact. As the co-founder of Boiling Frog Games, I’ve had the unique opportunity to apply my skills to game development, blending creativity with technical expertise. Outside of work, I am a poker and card game enthusiast who loves any game that statistics can beat. I am excited to bring my diverse skills to new challenges where data meets real-world impact. Connect with me on <a href="https://www.linkedin.com/in/kevin-kiser-527850271" target="_blank" rel="noopener noreferrer">LinkedIn</a> or visit me at <a href="http://boilingfroggames.com" target="_blank" rel="noopener noreferrer">Boiling Frog Games</a>. Contact at <a href="mailto:k13kiser@gmail.com">k13kiser@gmail.com</a>.
                 </p>
             </div>
         </div>
@@ -480,7 +470,7 @@
         const themeToggleBtn = document.getElementById('theme-toggle');
         const bgDay = document.getElementById('bg-day');
         const bgNight = document.getElementById('bg-night');
-        let isNight = false; // start in day mode
+        let isNight = false;
 
         // modal elements
         const viewResumeBtn = document.getElementById('view-resume-btn');
@@ -489,7 +479,6 @@
         const resumeIframe = document.getElementById('resume-iframe');
         const downloadResumeBtn = document.getElementById('download-resume-btn');
 
-        // set initial theme
         if (isNight) {
             document.body.classList.remove('light-mode');
             bgDay.style.opacity = '0';
