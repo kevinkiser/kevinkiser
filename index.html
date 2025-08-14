@@ -262,6 +262,43 @@
             line-height: 1.3;
         }
 
+        /* tooltip styles */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: 300px;
+            background-color: rgba(17, 24, 39, 0.75);
+            color: var(--text-primary);
+            text-align: left;
+            border-radius: 6px;
+            padding: 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 105%;
+            left: 50%;
+            margin-left: -150px; /* Use half of the width to center the tooltip */
+            opacity: 0;
+            transition: opacity 0.3s;
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            pointer-events: none;
+            font-size: 0.75rem;
+        }
+        
+        body.light-mode .tooltip .tooltip-text {
+            background-color: rgba(255, 255, 255, 0.75);
+        }
+
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
         /* modal styles */
         .modal-overlay {
             display: none;
@@ -430,22 +467,34 @@
             <a href="#" id="view-resume-btn" class="btn">View Resume</a>
 
             <div class="content-box projects-container">
-                <a href="willamette_cove_rem.html" class="btn project-btn" target="_blank" rel="noopener noreferrer">
-                    <img src="assets/WC_small.jpg" alt="Willamette Cove Project Thumbnail" class="project-btn-img" onerror="this.onerror=null;this.src='https://placehold.co/150x80/EFEFEF/AAAAAA&text=Image+not+found';">
-                    <span class="project-btn-text">Willamette Cove Remediation</span>
-                </a>
-                <a href="https://akewpm-kevin-kiser.shinyapps.io/HurricaneApp/" class="btn project-btn" target="_blank" rel="noopener noreferrer">
-                    <img src="assets/HurricaneSurvivalAnalysis.png" alt="Hurricane Survival Analysis Thumbnail" class="project-btn-img" onerror="this.onerror=null;this.src='https://placehold.co/150x80/EFEFEF/AAAAAA&text=Image+not+found';">
-                    <span class="project-btn-text">Survival Analysis Hurricanes</span>
-                </a>
-                <a href="poker_eval.html" class="btn project-btn" target="_blank" rel="noopener noreferrer">
-                    <img src="assets/poker_eval.png" alt="Video Poker Expected Value Thumbnail" class="project-btn-img" onerror="this.onerror=null;this.src='https://placehold.co/150x80/EFEFEF/AAAAAA&text=Image+not+found';">
-                    <span class="project-btn-text">Video Poker Expected Value</span>
-                </a>
-                <a href="https://wu-msds-capstones.github.io/project-writeup-felix-kevin-capstone/" class="btn project-btn" target="_blank" rel="noopener noreferrer">
-                    <img src="assets/CA_scatter.svg" alt="Preventable Hospitalization Modelling Thumbnail" class="project-btn-img" onerror="this.onerror=null;this.src='https://placehold.co/150x80/EFEFEF/AAAAAA&text=Image+not+found';">
-                    <span class="project-btn-text">Willamette Capstone Project: Preventable Hospitalizations</span>
-                </a>
+                <div class="tooltip">
+                    <a href="willamette_cove_rem.html" class="btn project-btn" target="_blank" rel="noopener noreferrer">
+                        <img src="assets/WC_small.jpg" alt="Willamette Cove Project Thumbnail" class="project-btn-img" onerror="this.onerror=null;this.src='https://placehold.co/150x80/EFEFEF/AAAAAA&text=Image+not+found';">
+                        <span class="project-btn-text">Willamette Cove Remediation</span>
+                    </a>
+                    <span class="tooltip-text">Project Description: Shiny Application to visualize contamination levels at an EPA superfund site. In collaboration with Thomas Sato, prepared for the Port of Portland.</span>
+                </div>
+                <div class="tooltip">
+                    <a href="https://akewpm-kevin-kiser.shinyapps.io/HurricaneApp/" class="btn project-btn" target="_blank" rel="noopener noreferrer">
+                        <img src="assets/HurricaneSurvivalAnalysis.png" alt="Hurricane Survival Analysis Thumbnail" class="project-btn-img" onerror="this.onerror=null;this.src='https://placehold.co/150x80/EFEFEF/AAAAAA&text=Image+not+found';">
+                        <span class="project-btn-text">Survival Analysis Hurricanes</span>
+                    </a>
+                    <span class="tooltip-text">Project Description: Shiny Application to visualize hurricane storm paths and their Kaplan-Meier curves.</span>
+                </div>
+                <div class="tooltip">
+                    <a href="poker_eval.html" class="btn project-btn" target="_blank" rel="noopener noreferrer">
+                        <img src="assets/poker_eval.png" alt="Video Poker Expected Value Thumbnail" class="project-btn-img" onerror="this.onerror=null;this.src='https://placehold.co/150x80/EFEFEF/AAAAAA&text=Image+not+found';">
+                        <span class="project-btn-text">Video Poker Expected Value</span>
+                    </a>
+                    <span class="tooltip-text">Project Description: Monte Carlo simulations for expected value</span>
+                </div>
+                <div class="tooltip">
+                    <a href="https://wu-msds-capstones.github.io/project-writeup-felix-kevin-capstone/" class="btn project-btn" target="_blank" rel="noopener noreferrer">
+                        <img src="assets/CA_scatter.svg" alt="Preventable Hospitalization Modelling Thumbnail" class="project-btn-img" onerror="this.onerror=null;this.src='https://placehold.co/150x80/EFEFEF/AAAAAA&text=Image+not+found';">
+                        <span class="project-btn-text">Willamette Capstone Project: Preventable Hospitalizations</span>
+                    </a>
+                    <span class="tooltip-text">Project Description: Linear Regression modelling and K-Means clustering. In collaboration with Felix Huang. Prepared for Willamette University MSDS.</span>
+                </div>
             </div>
         </div>
     </div>
